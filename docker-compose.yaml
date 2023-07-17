@@ -1,0 +1,26 @@
+services:
+  nemo-sft:
+    build:
+      context: docker
+      dockerfile: Dockerfile
+      args:
+        - FROM_BASE_IMAGE=${FROM_BASE_IMAGE}
+    image: nemo-sft
+    env_file:
+      - .env
+    shm_size: 64gb
+    ulimits:
+      memlock: -1
+      stack: 67108864
+    runtime: nvidia
+    ports:
+      - 6006:6006
+    working_dir: /workspace
+    volumes:
+      - ${DOCKER_VOLUME_DIRECTORY:-.}/data:/data
+      - ${DOCKER_VOLUME_DIRECTORY:-.}/models:/models
+      - ${DOCKER_VOLUME_DIRECTORY:-.}/results:/results
+      - type: bind
+        source: docker/entrypoint-sft.sh
+        target: /tmp/entrypoint-sft.sh
+    entrypoint: ["sh", "/tmp/entrypoint-sft.sh"]
